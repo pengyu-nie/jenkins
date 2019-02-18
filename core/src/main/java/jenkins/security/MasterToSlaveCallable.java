@@ -8,6 +8,9 @@ import org.jenkinsci.remoting.RoleChecker;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
+import org.trigit.TrigIt;
+import org.trigit.TrigItMethod;
+import org.trigit.build.Version;
 
 /**
  * Convenient {@link Callable} meant to be run on agent.
@@ -28,7 +31,7 @@ public abstract class MasterToSlaveCallable<V, T extends Throwable> implements C
         checker.check(this,Roles.SLAVE);
     }
 
-    //TODO: remove once Minimum supported Remoting version is 3.15 or above
+    // TrigIt Encoded: TODO: remove once Minimum supported Remoting version is 3.15 or above
     @Override
     public Channel getChannelOrFail() throws ChannelClosedException {
         final Channel ch = Channel.current();
@@ -36,6 +39,14 @@ public abstract class MasterToSlaveCallable<V, T extends Throwable> implements C
             throw new ChannelClosedException(new IllegalStateException("No channel associated with the thread"));
         }
         return ch;
+    }
+
+    // TrigIt Encoding
+    @TrigItMethod
+    void trigItMinRemotingVersion() throws Exception {
+        if (((Version) TrigIt.getBuildConfigurations().getProperty("remoting.minimum.supported.version")).ge("3.15")) {
+            TrigIt.getMethod(getChannelOrFail()).remove();
+        }
     }
 
     //TODO: remove once Callable#getOpenChannelOrFail() once Minimaumsupported Remoting version is 3.15 or above
